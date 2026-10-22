@@ -12,6 +12,8 @@ jinja_render_string -v name 'Hello {{ name }}!'     # Hello World!
 jinja_render -d config.yaml -o nginx.conf templates/nginx.conf.j2
 ```
 
+Full documentation: [docs/](docs/README.md).
+
 ## Installation
 
 Either use the repository as is (`jinja.sh` loads the engine from
