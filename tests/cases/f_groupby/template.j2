@@ -1,0 +1,1 @@
+{% for city, items in users|groupby('city') %}{{ city }}: {{ items|map(attribute='name')|join(', ') }}; {% endfor %}{% for g in users|groupby('city') %}{{ g.grouper }}={{ g.list|length }} {% endfor %}{{ users|groupby('city')|map(attribute='grouper')|list }}

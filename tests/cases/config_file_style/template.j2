@@ -1,0 +1,8 @@
+# generated
+{% for name, svc in services|dictsort %}
+[{{ name }}]
+host = {{ svc.host | default('localhost') }}
+port = {{ svc.port }}
+{% if svc.tags %}tags = {{ svc.tags | join(', ') }}
+{% endif %}
+{% endfor %}

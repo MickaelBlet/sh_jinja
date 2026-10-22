@@ -1,0 +1,1 @@
+{% set ns = namespace(found=false, n=0) %}{% for x in [1, 2, 3] %}{% if x == 2 %}{% set ns.found = true %}{% endif %}{% set ns.n = ns.n + x %}{% endfor %}{{ ns.found }} {{ ns.n }}

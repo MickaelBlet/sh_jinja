@@ -1,0 +1,15 @@
+{
+ "users": [
+  {
+   "name": "a",
+   "active": true,
+   "age": 10
+  },
+  {
+   "name": "b",
+   "active": false,
+   "age": 20,
+   "nick": "B"
+  }
+ ]
+}

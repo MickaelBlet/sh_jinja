@@ -1,0 +1,5 @@
+hello world|42|3.14|True|None|[1, 'two', 3.0]|v|True|a	b é "q"|it's|line1
+line2
+|folded text
+para
+|[1, 'two', {'a': 'b'}]|{'x': 1, 'y': [2, 3]}|8|31|True|1e5|1500.0|None|None|2020-01-02|[{'name': 'a', 'v': 1}, {'name': 'b', 'v': 2}]|{'x': 1, 'y': 2}|{'x': 1, 'y': 3}

@@ -1,0 +1,1 @@
+{% macro outer() %}<{{ caller() }}>{% endmacro %}{% macro inner() %}[{{ caller() }}]{% endmacro %}{% call outer() %}{% call inner() %}deep{% endcall %}{% endcall %}

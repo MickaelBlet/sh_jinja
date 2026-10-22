@@ -1,0 +1,3 @@
+{% for n in nodes recursive %}{{ '  ' * loop.depth0 }}{{ n.v }}{% if n.c %}
+{{ loop(n.c) }}{% endif %}
+{% endfor %}

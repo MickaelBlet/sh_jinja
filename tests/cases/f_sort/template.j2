@@ -1,0 +1,1 @@
+{{ [3, 1, 2]|sort }} {{ [3, 1, 2]|sort(reverse=true) }} {{ ['b', 'A', 'c']|sort }} {{ ['b', 'A', 'c']|sort(case_sensitive=true) }} {{ users|sort(attribute='age')|map(attribute='name')|join(',') }} {{ users|sort(attribute='age,name')|map(attribute='name')|join(',') }} {{ users|sort(attribute='name', reverse=true)|map(attribute='name')|join(',') }}

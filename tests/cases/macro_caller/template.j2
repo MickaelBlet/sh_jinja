@@ -1,0 +1,2 @@
+{% macro wrap(tag) %}<{{ tag }}>{{ caller() }}</{{ tag }}>{% endmacro %}{% call wrap('b') %}bold {{ 1 + 1 }}{% endcall %}
+{% macro rows(items) %}{% for i in items %}{{ caller(i, loop.index) }}{% endfor %}{% endmacro %}{% call(item, n) rows(['x', 'y']) %}[{{ n }}:{{ item }}]{% endcall %}

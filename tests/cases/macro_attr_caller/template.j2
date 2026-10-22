@@ -1,0 +1,1 @@
+{% macro a() %}{{ caller() }}{% endmacro %}{% macro b(x, y=1) %}{{ varargs }}{% endmacro %}{{ a.caller }} {{ b.caller }} {{ b.catch_varargs }} {{ b.catch_kwargs }} {{ b.arguments }}

@@ -1,0 +1,13 @@
+{
+ "navigation": [
+  {
+   "href": "/",
+   "caption": "Home"
+  },
+  {
+   "href": "/about",
+   "caption": "About <us>"
+  }
+ ],
+ "a_variable": "Hello & bye"
+}

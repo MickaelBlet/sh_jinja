@@ -1,0 +1,3 @@
+single # not comment|double # not comment|plain|-12|7|1000|0.0005|0.5|-inf|['a', 'b, c', 'd']|{'a': 1, 'b': ['x', 'y']}|[['nested', 'seq'], 'x']|multi line quoted|stripped folded|literal with "quotes" and 'apos'
+  indented more
+|Aé	|

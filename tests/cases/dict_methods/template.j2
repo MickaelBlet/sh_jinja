@@ -1,0 +1,1 @@
+{% set d = {'a': 1} %}{{ d.items() }} {{ d.keys() }} {{ d.values() }} {% set _ = d.update(b=2) %}{{ d }} {{ d.pop('a') }} {{ d }} {{ d.setdefault('c', 3) }} {{ d }} {{ d.get('zz') }}

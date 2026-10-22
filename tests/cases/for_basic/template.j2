@@ -1,0 +1,4 @@
+{% for x in items %}{{ x }}{% if not loop.last %}, {% endif %}{% endfor %}
+{% for k, v in d|dictsort %}{{ k }}={{ v }};{% endfor %}
+{% for k in d %}{{ k }}{% endfor %}
+{% for c in 'abc' %}{{ c }}.{% endfor %}

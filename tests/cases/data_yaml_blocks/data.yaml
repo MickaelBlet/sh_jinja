@@ -1,0 +1,15 @@
+keep: |+
+  a
+
+strip: |-
+  b
+clip: |
+  c
+
+
+ind: |2
+    indented
+  base
+plain: this is
+  a multi line
+  plain scalar

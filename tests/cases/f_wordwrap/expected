@@ -1,0 +1,17 @@
+The quick brown fox
+jumps over the lazy
+dog, again and
+again.
+Second paragraph
+here.
+--
+The quick|brown fox|jumps over|the lazy|dog, again|and again.|Second|paragraph|here.
+--
+a verylo
+ngwordth
+atexceed
+swidth b
+--
+a
+verylongwordthatexceedswidth
+b

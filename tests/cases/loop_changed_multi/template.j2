@@ -1,0 +1,1 @@
+{% for a, b in [(1, 1), (1, 2), (1, 2), (2, 2)] %}{{ loop.changed(a, b)|int }}{{ loop.changed(a)|int }} {% endfor %}

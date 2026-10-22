@@ -1,0 +1,1 @@
+{% macro m() %}<i>{{ s }}</i>{% endmacro %}{{ s }} {{ s|safe }} {{ s|e }} {{ m() }} {{ s ~ '&' }} {{ '<b>'|safe ~ s }} {{ s|replace('&', '+') }} {{ [s, '<b>'|safe]|join(',') }} {{ s|upper }}

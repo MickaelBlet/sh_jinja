@@ -1,0 +1,10 @@
+{
+ "users": [
+  {
+   "username": "a<b"
+  },
+  {
+   "username": "c"
+  }
+ ]
+}

@@ -1,0 +1,1 @@
+{% macro show(l) %}{{ l.index }}/{{ l.length }}{% endmacro %}{% for x in 'ab' %}{{ show(loop) }} {% endfor %}

@@ -1,0 +1,17 @@
+{%- set people = [
+    {'name': 'Ann', 'age': 31, 'langs': ['py', 'go']},
+    {'name': 'Bob', 'age': 25, 'langs': []},
+    {'name': 'Cy', 'age': 31, 'langs': ['sh']},
+] -%}
+{%- macro person(p, show_age=true) -%}
+{{ p.name }}{% if show_age %} ({{ p.age }}){% endif %}{% if p.langs %}: {{ p.langs|join(', ') }}{% endif %}
+{%- endmacro -%}
+{% for age, group in people|groupby('age') %}
+== {{ age }} ==
+{% for p in group|sort(attribute='name', reverse=true) %}
+  {{ loop.index }}. {{ person(p, show_age=false) }}
+{% endfor %}
+{% endfor %}
+oldest: {{ (people|max(attribute='age')).name }}
+names: {{ people|map(attribute='name')|map('lower')|join('/') }}
+langs: {{ people|map(attribute='langs')|sum(start=[])|unique|sort|list }}

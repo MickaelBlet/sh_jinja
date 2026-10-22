@@ -1,0 +1,46 @@
+# comment
+s: hello world
+i: 42
+f: 3.14
+b: true
+n: null
+lst:
+  - 1
+  - two
+  - 3.0
+m:
+  k: v
+  n:
+    deep: yes
+quoted: "a\tb \u00e9 \"q\""
+sq: 'it''s'
+multi: |
+  line1
+  line2
+folded: >
+  folded
+  text
+
+  para
+flow: [1, "two", {a: b}]
+fmap: {x: 1, y: [2, 3]}
+octal: 010
+hex: 0x1F
+onval: on
+notfloat: 1e5
+sci: 1.5e+3
+empty:
+tilde: ~
+date: 2020-01-02
+seqmap:
+- name: a
+  v: 1
+- name: b
+  v: 2
+base: &base
+  x: 1
+  y: 2
+anchor_use: *base
+merged:
+  <<: *base
+  y: 3

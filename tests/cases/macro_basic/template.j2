@@ -1,0 +1,1 @@
+{% macro hello(name, greeting='Hello') -%}{{ greeting }}, {{ name }}!{%- endmacro %}{{ hello('A') }} {{ hello('B', 'Hi') }} {{ hello(greeting='Yo', name='C') }} {{ hello.name }} {{ hello.arguments }}

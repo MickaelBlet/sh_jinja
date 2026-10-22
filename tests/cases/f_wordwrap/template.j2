@@ -1,0 +1,7 @@
+{{ text|wordwrap(20) }}
+--
+{{ text|wordwrap(10, wrapstring='|') }}
+--
+{{ 'a verylongwordthatexceedswidth b'|wordwrap(8) }}
+--
+{{ 'a verylongwordthatexceedswidth b'|wordwrap(8, false) }}

@@ -1,0 +1,1 @@
+{% set c = cycler(1, 2, 3) %}{{ c.next() }}{{ c.next() }}{% set _ = c.reset() %}{{ c.next() }}{{ c.current }}

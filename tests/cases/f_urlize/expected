@@ -1,0 +1,2 @@
+see <a href="http://example.com/x" rel="noopener">http://example.com/x</a>. and <a href="https://www.foo.org" rel="noopener">www.foo.org</a>, mail <a href="mailto:me@ex.com">me@ex.com</a> or (https://a.b/c)
+<a href="http://example.com/very/long/path" rel="nofollow noopener" target="_blank">http://example....</a>

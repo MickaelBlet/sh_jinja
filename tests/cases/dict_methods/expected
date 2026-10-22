@@ -1,0 +1,1 @@
+dict_items([('a', 1)]) dict_keys(['a']) dict_values([1]) {'a': 1, 'b': 2} 1 {'b': 2} 3 {'b': 2, 'c': 3} None

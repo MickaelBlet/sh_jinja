@@ -1,0 +1,2 @@
+{% macro m(a) %}{{ a }}|{{ varargs }}|{{ kwargs }}{% endmacro %}{{ m(1, 2, 3, x=4) }}
+{% macro n() %}{{ varargs|join(',') }}{% endmacro %}{{ n(5, 6) }}

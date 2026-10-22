@@ -1,0 +1,1 @@
+{% for u in users %}{{ u.name }}:{{ u.roles|join('+') }}:{{ (u.meta or {}).age|default('?') }} {% endfor %}

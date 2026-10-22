@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# jinja - command line front-end of jinja.sh
+_jinja_self=${BASH_SOURCE[0]}
+while [[ -L $_jinja_self ]]; do
+	_jinja_link=$(readlink "$_jinja_self")
+	[[ $_jinja_link == /* ]] && _jinja_self=$_jinja_link || _jinja_self=${_jinja_self%/*}/$_jinja_link
+done
+_jinja_bin=${_jinja_self%/*}
+[[ $_jinja_bin == "$_jinja_self" ]] && _jinja_bin=.
+# shellcheck disable=SC1091
+source "$_jinja_bin/../jinja.sh"
+unset _jinja_self _jinja_link _jinja_bin
+jinja_main "$@"

@@ -1,0 +1,1 @@
+{{ cfg.servers[0].ports[1] }} {{ cfg['servers'][1]['name'] }} {{ cfg.servers|map(attribute='name')|join }} {{ cfg.servers|map(attribute='ports.0')|list }}

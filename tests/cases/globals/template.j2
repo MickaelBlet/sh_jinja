@@ -1,0 +1,1 @@
+{{ range(5)|list }} {{ range(1, 10, 3)|list }} {{ range(5, 0, -2)|list }} {{ range(3) }} {{ dict(a=1, b='x') }} {% set c = cycler('x', 'y') %}{{ c.next() }}{{ c.next() }}{{ c.next() }}{{ c.current }}{% set j = joiner('|') %}{% for i in [1, 2, 3] %}{{ j() }}{{ i }}{% endfor %}{% set j2 = joiner() %}[{{ j2() }}{{ j2() }}]

@@ -1,0 +1,25 @@
+a: 'single # not comment'
+b: "double # not comment"   # comment
+c: plain # comment
+d: -12
+e: +7
+f: 1_000
+g: 0.5e-3
+h: .5
+i: -.inf
+j: [a, 'b, c', "d"]
+k: {a: 1, 'b': [x, y]}
+l:
+- - nested
+  - seq
+- x
+m: "multi
+  line
+  quoted"
+n: >-
+  stripped
+  folded
+o: |
+  literal with "quotes" and 'apos'
+    indented more
+p: "\x41\u00e9\t|"

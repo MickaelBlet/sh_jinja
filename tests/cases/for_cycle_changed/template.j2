@@ -1,0 +1,1 @@
+{% for x in [1, 1, 2, 3, 3] %}{{ loop.cycle('a', 'b', 'c') }}{% if loop.changed(x) %}*{% endif %}{{ loop.previtem }}<{{ x }}>{{ loop.nextitem }} {% endfor %}

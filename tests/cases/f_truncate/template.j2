@@ -1,0 +1,1 @@
+{{ 'foo bar baz qux'|truncate(9) }}|{{ 'foo bar baz qux'|truncate(9, True) }}|{{ 'foo bar baz qux'|truncate(11) }}|{{ 'foo bar baz qux'|truncate(11, False, '...', 0) }}|{{ 'short'|truncate(3, true, '', 0) }}|{{ ('a' * 300)|truncate|length }}

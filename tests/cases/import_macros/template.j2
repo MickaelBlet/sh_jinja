@@ -1,0 +1,1 @@
+{% import 'macros.j2' as m %}{{ m.box('x') }} {{ m.title }} {% from 'macros.j2' import box as b, title %}{{ b('y') }} {{ title }}

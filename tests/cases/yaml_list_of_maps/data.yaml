@@ -1,0 +1,10 @@
+users:
+  - name: alice
+    roles: [admin, dev]
+    meta:
+      age: 30
+  - name: bob
+    roles:
+      - dev
+  -   name: carol
+      roles: []

@@ -1,0 +1,1 @@
+{% for i in [1, 2] %}{% macro m(x) %}{{ x }}{{ i }}{% endmacro %}{{ m('a') }}{% endfor %}
