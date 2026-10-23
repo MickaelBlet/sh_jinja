@@ -35,6 +35,7 @@ tests/                 golden tests, CLI tests, fuzzer
    | `L name n` then n × `E value` | list |
    | `A name n` then n × `K key value` | dict |
    | `J name json` | JSON value |
+   | `V name value` | `-v NAME=VALUE`: bash array literal or string, parsed by awk |
    | `F path` | data file |
    | `T source` / `M name` | main template (string / name) |
 

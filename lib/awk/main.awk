@@ -9,6 +9,7 @@
 #   L name n         list, followed by n "E value" records
 #   A name n         dict, followed by n "K key value" records
 #   J name json      variable from a JSON document
+#   V name value     -v NAME=VALUE: bash array literal or string (pd_inline)
 #   F path           data file (.json, .yaml, .yml), merged into the context
 #   T source         main template given as a string
 #   M name           main template name, resolved through the search path
@@ -25,6 +26,94 @@ function pd_unesc(s,    out, k, c) {
 		else out = out c
 	}
 	return out s
+}
+
+# dict from PD_K[i] / PD_V[i] (i < PD_N, string keys and values), keys sorted
+function pd_dict(    d, keys, i) {
+	d = v_dict()
+	keys = v_list()
+	for (i = 0; i < PD_N; i++) {
+		v_push(keys, v_str(PD_K[i]))
+		PD_AV[PD_K[i]] = PD_V[i]
+	}
+	keys = f_sortby(keys, keys, 0)
+	for (i = 0; i < PD_N; i++) v_dset(d, VE[keys, i], v_str(PD_AV[VV[VE[keys, i]]]))
+	delete PD_K; delete PD_V; delete PD_AV
+	return d
+}
+
+function pd_fail(msg,    pre, line) {
+	pre = substr(PD_S, 1, PD_I)
+	line = 1 + gsub(/\n/, "", pre)
+	rt_fail_at("ValueError", msg, "-v " PD_NAME, line)
+}
+
+# read one word of PD_S from PD_I, up to an unquoted character of stop;
+# removes quotes like bash ('..', "..", \x) but performs no expansion
+function pd_word(stop,    w, c, n, q) {
+	w = ""
+	n = length(PD_S)
+	while (PD_I <= n) {
+		c = substr(PD_S, PD_I, 1)
+		if (index(stop, c)) break
+		if (c == "'") {
+			q = index(substr(PD_S, PD_I + 1), "'")
+			if (!q) pd_fail("unterminated quote")
+			w = w substr(PD_S, PD_I + 1, q - 1)
+			PD_I += q + 1
+		} else if (c == "\"") {
+			for (PD_I++; ; PD_I++) {
+				if (PD_I > n) pd_fail("unterminated quote")
+				c = substr(PD_S, PD_I, 1)
+				if (c == "\"") break
+				if (c == "\\" && PD_I < n && index("$`\"\\\n", substr(PD_S, PD_I + 1, 1))) {
+					c = substr(PD_S, ++PD_I, 1)
+					if (c == "\n") continue
+				}
+				w = w c
+			}
+			PD_I++
+		} else if (c == "\\" && PD_I < n) {
+			c = substr(PD_S, PD_I + 1, 1)
+			if (c != "\n") w = w c
+			PD_I += 2
+		} else {
+			w = w c
+			PD_I++
+		}
+	}
+	return w
+}
+
+# value of -v NAME=VALUE: '(a b)' list, '([k]=v ...)' dict, else string
+function pd_inline(name, s,    dict, n, l, k, j) {
+	if (s !~ /^\(/ || s !~ /\)$/ || length(s) < 2) return v_str(s)
+	PD_NAME = name
+	PD_S = substr(s, 2, length(s) - 2)
+	PD_I = 1
+	PD_N = 0
+	n = length(PD_S)
+	dict = PD_S ~ /^[ \t\n]*\[/
+	l = v_list()
+	for (;;) {
+		while (PD_I <= n && index(" \t\n", substr(PD_S, PD_I, 1))) PD_I++
+		if (PD_I > n) break
+		if (!dict) {
+			v_push(l, v_str(pd_word(" \t\n")))
+			continue
+		}
+		if (substr(PD_S, PD_I, 1) != "[") pd_fail("expected [KEY]=VALUE")
+		PD_I++
+		k = pd_word("]")
+		if (substr(PD_S, PD_I, 2) != "]=") pd_fail("expected [KEY]=VALUE")
+		if (k == "") pd_fail("empty key")
+		PD_I += 2
+		# bash: a repeated key keeps its last value
+		if (!(k in PD_SEEN)) { PD_SEEN[k] = PD_N; PD_K[PD_N++] = k }
+		PD_V[PD_SEEN[k]] = pd_word(" \t\n")
+	}
+	delete PD_SEEN
+	return dict ? pd_dict() : l
 }
 
 function main_data(path,    src, v, i, k, fmt) {
@@ -57,7 +146,7 @@ BEGIN {
 	MAIN_SRC = ""
 	HAS_SRC = 0
 	OUTFILE = ""
-	while ((getline line < "/dev/stdin") > 0) {
+	while ((getline line) > 0) {
 		n = split(line, fld, "\t")
 		k = fld[1]
 		if (k == "O") {
@@ -85,7 +174,7 @@ BEGIN {
 			name = pd_unesc(fld[2]); cnt = fld[3] + 0
 			l = v_list()
 			for (i = 0; i < cnt; i++) {
-				getline line < "/dev/stdin"
+				getline line
 				split(line, fld, "\t")
 				v_push(l, v_str(pd_unesc(fld[2])))
 			}
@@ -93,18 +182,16 @@ BEGIN {
 		} else if (k == "A") {
 			name = pd_unesc(fld[2]); cnt = fld[3] + 0
 			# bash hash order is arbitrary: sort keys
-			d = v_dict()
-			keys = v_list()
-			for (i = 0; i < cnt; i++) {
-				getline line < "/dev/stdin"
+			for (PD_N = 0; PD_N < cnt; PD_N++) {
+				getline line
 				split(line, fld, "\t")
-				v_push(keys, v_str(pd_unesc(fld[2])))
-				AVAL[VV[VE[keys, i]]] = pd_unesc(fld[3])
+				PD_K[PD_N] = pd_unesc(fld[2])
+				PD_V[PD_N] = pd_unesc(fld[3])
 			}
-			keys = f_sortby(keys, keys, 0)
-			for (i = 0; i < cnt; i++) v_dset(d, VE[keys, i], v_str(AVAL[VV[VE[keys, i]]]))
-			delete AVAL
-			rt_fset(CTX, name, d)
+			rt_fset(CTX, name, pd_dict())
+		} else if (k == "V") {
+			name = pd_unesc(fld[2])
+			rt_fset(CTX, name, pd_inline(name, pd_unesc(fld[3])))
 		} else if (k == "J") {
 			rt_fset(CTX, pd_unesc(fld[2]), json_parse(pd_unesc(fld[3]), "-J " pd_unesc(fld[2])))
 		} else if (k == "F") {

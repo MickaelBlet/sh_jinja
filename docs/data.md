@@ -64,8 +64,8 @@ Notes:
 
 ## Inline values: `-v NAME=VALUE`, `-i NAME=INT`
 
-With `=`, `-v` defines the variable directly, using the bash assignment
-syntax, so nothing has to be declared first:
+With `=`, `-v` defines the variable directly, using the bash array
+assignment syntax, so nothing has to be declared first:
 
 | option | template value |
 | --- | --- |
@@ -87,9 +87,11 @@ Notes:
 
 - A value is a list when it starts with `(` and ends with `)`, a dict when
   it also starts with `([`. Anything else is a string.
-- List and dict values are evaluated by bash like an assignment: quotes are
-  removed and expansions (`$x`, `$(cmd)`) run. Do not pass untrusted input
-  as a `(...)` value; use `-D` or `-J` for it.
+- Words are separated by spaces, tabs or newlines. Quotes are removed like
+  in bash (`'...'`, `"..."`, `\x`), but nothing is expanded: `$x`, `$(cmd)`
+  and `` `cmd` `` stay literal text, so untrusted input is safe.
+- Dict elements must be `[KEY]=VALUE` (the key may be quoted and contain
+  spaces); a repeated key keeps its last value.
 - `NAME` must be a valid bash identifier.
 - `-i` accepts a decimal integer (`-12`, `007` is `7`).
 

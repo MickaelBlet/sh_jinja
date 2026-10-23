@@ -72,6 +72,18 @@ check inline_dict "{'name': 'alice', 'role': 'x y'}" jinja_render_string -v 'use
 check inline_long "['1', '2']" jinja_render_string --var='l=(1 2)' '{{ l }}'
 check inline_bad 'jinja: -v 1x=a: invalid variable name
 ' jinja_render_string -v '1x=a' 'x'
+check inline_quotes "['a b', 'c\"d', '\$x', 'e\\\\f', 'gh', '', 'i\\\\j']" jinja_render_string -v "l=('a b' \"c\\\"d\" \"\\\$x\" 'e\\f' g\\h '' \"i\\j\")" '{{ l }}'
+# shellcheck disable=SC2016  # literal $ and backquotes on purpose
+check inline_noexpand "['\$HOME', '\$(id)', '\`id\`']" jinja_render_string -v 'l=($HOME $(id) `id`)' '{{ l }}'
+check inline_multiline "['a', 'b', 'c']" jinja_render_string -v $'l=(\n  a\n  b\tc\n)' '{{ l }}'
+check inline_dict_keys "{'a b': '1', 'k': '3', 'z': ''}" jinja_render_string -v $'m=( [k]=1 ["a b"]=1 [z]= [k]=3 )' '{{ m }}'
+check inline_not_array "(a b c" jinja_render_string -v 's=(a b c' '{{ s }}'
+check inline_unterminated "jinja: -v l:2: ValueError: unterminated quote
+" jinja_render_string -v $'l=(a\n"b)' 'x'
+check inline_dict_bad "jinja: -v m:1: ValueError: expected [KEY]=VALUE
+" jinja_render_string -v 'm=([a]=1 b)' 'x'
+check inline_dict_empty_key "jinja: -v m:1: ValueError: empty key
+" jinja_render_string -v 'm=([]=1)' 'x'
 check int '8081 True -3' jinja_render_string -i port=8080 --int=neg=-3 '{{ port + 1 }} {{ port is integer }} {{ neg }}'
 check int_bad "jinja: -i expects NAME=INTEGER, got 'n=1.5'
 " jinja_render_string -i n=1.5 'x'

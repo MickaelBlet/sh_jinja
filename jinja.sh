@@ -105,21 +105,10 @@ _jinja_add_var() {
 	fi
 }
 
-# append protocol records for -v NAME=VALUE: a '(...)' value is evaluated as
-# a bash array assignment, '([k]=v ...)' as an associative one
+# append the protocol record for -v NAME=VALUE (the value is parsed by awk)
 _jinja_add_inline() {
-	local _jinja_name=${1%%=*} _jinja_value=${1#*=}
-	[[ $_jinja_name =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || { _jinja_err "-v $1: invalid variable name"; return; }
-	if [[ $_jinja_value =~ ^\([[:space:]]*\[ && $_jinja_value == *\) ]]; then
-		local -A _jinja_inline
-	elif [[ $_jinja_value == \(*\) ]]; then
-		local -a _jinja_inline
-	else
-		_jinja_add_rec S "$_jinja_name" "$_jinja_value"
-		return 0
-	fi
-	eval "_jinja_inline=$_jinja_value" 2>/dev/null || { _jinja_err "-v $1: invalid array assignment"; return; }
-	_jinja_add_var _jinja_inline "$_jinja_name"
+	[[ ${1%%=*} =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || { _jinja_err "-v $1: invalid variable name"; return; }
+	_jinja_add_rec V "${1%%=*}" "${1#*=}"
 }
 
 # parse options into _jinja_buf / _jinja_args; sets _jinja_out

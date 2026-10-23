@@ -10,9 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `-v NAME=VALUE` defines a variable without declaring it first, using the
-  bash assignment syntax: `'(a b)'` gives a list, `'([k]=v)'` a dict,
-  anything else a string.
+  bash array syntax: `'(a b)'` gives a list, `'([k]=v)'` a dict, anything
+  else a string. The value is parsed by the awk engine: quotes are removed,
+  nothing is expanded or executed, and it does not need bash 4.
 - `-i, --int NAME=INT` defines an integer variable.
+
+### Changed
+
+- The awk engine reads its input with a plain `getline` instead of
+  `/dev/stdin`.
 
 ## [0.1.0] - 2026-10-22
 
