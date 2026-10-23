@@ -66,6 +66,15 @@ y zeta=1 " jinja_render_string -v map '{% for k, v in map.items() %}{{ k }}={{ v
 check glob 'localhost:8080' jinja_render_string -v 'app_*' '{{ app_host }}:{{ app_port }}'
 check nameref 'World' jinja_render_string -v ref '{{ ref }}'
 check empty '[]' jinja_render_string -v empty '[{{ empty }}]'
+check inline_str 'World a=b []' jinja_render_string -v name=World -v 'eq=a=b' -v e= '{{ name }} {{ eq }} [{{ e }}]'
+check inline_list "['web1', 'web 2'] []" jinja_render_string -v 'hosts=(web1 "web 2")' -v 'nil=()' '{{ hosts }} {{ nil }}'
+check inline_dict "{'name': 'alice', 'role': 'x y'}" jinja_render_string -v 'user=([role]="x y" [name]=alice)' '{{ user }}'
+check inline_long "['1', '2']" jinja_render_string --var='l=(1 2)' '{{ l }}'
+check inline_bad 'jinja: -v 1x=a: invalid variable name
+' jinja_render_string -v '1x=a' 'x'
+check int '8081 True -3' jinja_render_string -i port=8080 --int=neg=-3 '{{ port + 1 }} {{ port is integer }} {{ neg }}'
+check int_bad "jinja: -i expects NAME=INTEGER, got 'n=1.5'
+" jinja_render_string -i n=1.5 'x'
 check special_chars $'a\\b\tc\nd' jinja_render_string -D $'v=a\\b\tc\nd' '{{ v }}'
 check unset_var 'jinja: -v nope_not_set: variable is not set
 ' jinja_render_string -v nope_not_set 'x'

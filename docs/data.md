@@ -1,6 +1,6 @@
 # Template data
 
-Variables come from five sources. They are merged in command line order and
+Variables come from six sources. They are merged in command line order and
 later sources win. Environment variables (`-e`) always have the lowest
 priority. Like `dict.update`, merging replaces whole top-level values; it
 does not merge nested dicts.
@@ -61,6 +61,37 @@ Notes:
       jinja_render -v title page.j2
   }
   ```
+
+## Inline values: `-v NAME=VALUE`, `-i NAME=INT`
+
+With `=`, `-v` defines the variable directly, using the bash assignment
+syntax, so nothing has to be declared first:
+
+| option | template value |
+| --- | --- |
+| `-v x=hello` | `'hello'` (str) |
+| `-v 'arr=(a "b c")'` | `['a', 'b c']` (list) |
+| `-v 'm=([k]=v [x]="y z")'` | `{'k': 'v', 'x': 'y z'}` (dict, keys sorted) |
+| `-v 'e=()'` | `[]` |
+| `-i n=3` | `3` (int) |
+
+```bash
+jinja_render_string -v server_name=example.com -i workers=4 \
+  -v 'upstreams=(10.0.0.1 10.0.0.2)' \
+  -v 'headers=([X-Frame-Options]=DENY [X-Content-Type-Options]=nosniff)' \
+  '{{ server_name }} {{ workers * 2 }} {{ upstreams|join(",") }} {{ headers|length }}'
+# example.com 8 10.0.0.1,10.0.0.2 2
+```
+
+Notes:
+
+- A value is a list when it starts with `(` and ends with `)`, a dict when
+  it also starts with `([`. Anything else is a string.
+- List and dict values are evaluated by bash like an assignment: quotes are
+  removed and expansions (`$x`, `$(cmd)`) run. Do not pass untrusted input
+  as a `(...)` value; use `-D` or `-J` for it.
+- `NAME` must be a valid bash identifier.
+- `-i` accepts a decimal integer (`-12`, `007` is `7`).
 
 ## Strings: `-D KEY=VALUE`
 

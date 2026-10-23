@@ -10,6 +10,9 @@
 #   -v, --var NAME          export the bash variable NAME (scalar, -i integer,
 #                           indexed array -> list, associative array -> dict);
 #                           NAME may be a glob pattern ('app_*')
+#   -v, --var NAME=VALUE    define NAME without declaring it: '(a b)' -> list,
+#                           '([k]=v ...)' -> dict, anything else -> string
+#   -i, --int NAME=INT      define an integer variable
 #   -D, --define KEY=VALUE  define a string variable
 #   -J, --json KEY=JSON     define a variable from a JSON value
 #   -e, --env               expose environment variables as variables
@@ -50,9 +53,17 @@ _jinja_err() {
 	return 2
 }
 
-# append protocol records for bash variable $1 to _jinja_buf
+# append a single-line protocol record: TYPE NAME VALUE
+_jinja_add_rec() {
+	_jinja_esc "$2"
+	_jinja_buf+="$1	$REPLY	"
+	_jinja_esc "$3"
+	_jinja_buf+="$REPLY"$'\n'
+}
+
+# append protocol records for bash variable $1 (exported as $2, default $1)
 _jinja_add_var() {
-	local _jinja_name=$1 _jinja_decl _jinja_flags _jinja_key
+	local _jinja_name=$1 _jinja_as=${2:-$1} _jinja_decl _jinja_flags _jinja_key
 	if ! _jinja_decl=$(declare -p "$_jinja_name" 2>/dev/null); then
 		_jinja_err "-v $_jinja_name: variable is not set"
 		return
@@ -68,10 +79,8 @@ _jinja_add_var() {
 		}
 		[[ $_jinja_decl =~ ^declare\ -([a-zA-Z-]*)\  ]] && _jinja_flags=${BASH_REMATCH[1]} || _jinja_flags=
 		_jinja_name=$_jinja_target
-		_jinja_esc "$1"
-	else
-		_jinja_esc "$_jinja_name"
 	fi
+	_jinja_esc "$_jinja_as"
 	local _jinja_ename=$REPLY
 	local -n __jinja_ref=$_jinja_name
 	if [[ $_jinja_flags == *A* ]]; then
@@ -96,6 +105,23 @@ _jinja_add_var() {
 	fi
 }
 
+# append protocol records for -v NAME=VALUE: a '(...)' value is evaluated as
+# a bash array assignment, '([k]=v ...)' as an associative one
+_jinja_add_inline() {
+	local _jinja_name=${1%%=*} _jinja_value=${1#*=}
+	[[ $_jinja_name =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || { _jinja_err "-v $1: invalid variable name"; return; }
+	if [[ $_jinja_value =~ ^\([[:space:]]*\[ && $_jinja_value == *\) ]]; then
+		local -A _jinja_inline
+	elif [[ $_jinja_value == \(*\) ]]; then
+		local -a _jinja_inline
+	else
+		_jinja_add_rec S "$_jinja_name" "$_jinja_value"
+		return 0
+	fi
+	eval "_jinja_inline=$_jinja_value" 2>/dev/null || { _jinja_err "-v $1: invalid array assignment"; return; }
+	_jinja_add_var _jinja_inline "$_jinja_name"
+}
+
 # parse options into _jinja_buf / _jinja_args; sets _jinja_out
 _jinja_parse() {
 	local _jinja_opt _jinja_val _jinja_v _jinja_env=0 _jinja_matched
@@ -105,12 +131,12 @@ _jinja_parse() {
 	while (($#)); do
 		_jinja_opt=$1
 		case $_jinja_opt in
-		-d | --data | -v | --var | -D | --define | -J | --json | -I | --path | -o | --output | --ext)
+		-d | --data | -v | --var | -i | --int | -D | --define | -J | --json | -I | --path | -o | --output | --ext)
 			(($# >= 2)) || { _jinja_err "option $_jinja_opt requires an argument"; return; }
 			_jinja_val=$2
 			shift 2
 			;;
-		--data=* | --var=* | --define=* | --json=* | --path=* | --output=* | --ext=*)
+		--data=* | --var=* | --int=* | --define=* | --json=* | --path=* | --output=* | --ext=*)
 			_jinja_val=${_jinja_opt#*=}
 			_jinja_opt=${_jinja_opt%%=*}
 			shift
@@ -136,7 +162,9 @@ _jinja_parse() {
 			_jinja_buf+="F	$REPLY"$'\n'
 			;;
 		-v | --var)
-			if [[ $_jinja_val == *[\*\?\[]* ]]; then
+			if [[ $_jinja_val == *=* ]]; then
+				_jinja_add_inline "$_jinja_val" || return
+			elif [[ $_jinja_val == *[\*\?\[]* ]]; then
 				_jinja_matched=0
 				for _jinja_v in $(compgen -v); do
 					# shellcheck disable=SC2053
@@ -149,19 +177,17 @@ _jinja_parse() {
 				_jinja_add_var "$_jinja_val" || return
 			fi
 			;;
+		-i | --int)
+			[[ $_jinja_val =~ ^[^=]+=[+-]?[0-9]+$ ]] || { _jinja_err "-i expects NAME=INTEGER, got '$_jinja_val'"; return; }
+			_jinja_add_rec I "${_jinja_val%%=*}" "${_jinja_val#*=}"
+			;;
 		-D | --define)
 			[[ $_jinja_val == *=* ]] || { _jinja_err "-D expects KEY=VALUE, got '$_jinja_val'"; return; }
-			_jinja_esc "${_jinja_val%%=*}"
-			_jinja_buf+="S	$REPLY	"
-			_jinja_esc "${_jinja_val#*=}"
-			_jinja_buf+="$REPLY"$'\n'
+			_jinja_add_rec S "${_jinja_val%%=*}" "${_jinja_val#*=}"
 			;;
 		-J | --json)
 			[[ $_jinja_val == *=* ]] || { _jinja_err "-J expects KEY=JSON, got '$_jinja_val'"; return; }
-			_jinja_esc "${_jinja_val%%=*}"
-			_jinja_buf+="J	$REPLY	"
-			_jinja_esc "${_jinja_val#*=}"
-			_jinja_buf+="$REPLY"$'\n'
+			_jinja_add_rec J "${_jinja_val%%=*}" "${_jinja_val#*=}"
 			;;
 		-I | --path) _jinja_paths+=("$_jinja_val") ;;
 		-o | --output)
@@ -258,6 +284,9 @@ Options:
   -s, --string SOURCE     template source given on the command line
   -d, --data FILE         load variables from a .json/.yaml/.yml file
   -v, --var NAME          export a bash variable (glob patterns allowed)
+  -v, --var NAME=VALUE    define a variable: '(a b)' list, '([k]=v)' dict,
+                          else string
+  -i, --int NAME=INT      define an integer variable
   -D, --define KEY=VALUE  define a string variable
   -J, --json KEY=JSON     define a variable from a JSON value
   -e, --env               expose environment variables

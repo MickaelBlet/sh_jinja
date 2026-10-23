@@ -56,6 +56,8 @@ echo '{{ range(3)|list }}' | bin/jinja -
 | --- | --- |
 | `-d, --data FILE` | load variables from a `.json`, `.yaml` or `.yml` file |
 | `-v, --var NAME` | export a bash variable; `NAME` may be a glob pattern such as `'app_*'` |
+| `-v, --var NAME=VALUE` | define `NAME` without declaring it: `'(a b)'` list, `'([k]=v)'` dict, else string |
+| `-i, --int NAME=INT` | define an integer variable |
 | `-D, --define KEY=VALUE` | define a string variable |
 | `-J, --json KEY=JSON` | define a variable from a JSON value |
 | `-e, --env` | expose environment variables as variables |
@@ -87,7 +89,7 @@ These options match the Python `jinja2.Environment` settings:
 | `--ext loopcontrols` | `extensions=["jinja2.ext.loopcontrols"]` |
 | `--ext do` | `extensions=["jinja2.ext.do"]` |
 
-See [template data](data.md) for `-d`, `-v`, `-D`, `-J` and `-e`.
+See [template data](data.md) for `-d`, `-v`, `-i`, `-D`, `-J` and `-e`.
 
 ## Template search path
 

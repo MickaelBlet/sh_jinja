@@ -54,6 +54,8 @@ echo '{{ 6 * 7 }}' | bin/jinja -
 | --- | --- |
 | `-d, --data FILE` | load variables from a `.json`, `.yaml` or `.yml` file |
 | `-v, --var NAME` | export a bash variable; `NAME` may be a glob (`'app_*'`) |
+| `-v, --var NAME=VALUE` | define `NAME` without declaring it: `'(a b)'` list, `'([k]=v)'` dict, else string |
+| `-i, --int NAME=INT` | define an integer variable |
 | `-D, --define KEY=VALUE` | define a string variable |
 | `-J, --json KEY=JSON` | define a variable from a JSON value |
 | `-e, --env` | expose environment variables |
@@ -88,6 +90,14 @@ hosts=(web1 web2)
 jinja_render_string -v user -v hosts \
   '{{ user.name|title }} ({{ user.role }}): {{ hosts|join(", ") }}'
 # Alice (admin): web1, web2
+```
+
+Same without declaring anything:
+
+```bash
+jinja_render_string -v 'user=([name]=alice [role]=admin)' -v 'hosts=(web1 web2)' \
+  -i port=8080 '{{ user.name|title }}: {{ hosts|join(", ") }}:{{ port + 1 }}'
+# Alice: web1, web2:8081
 ```
 
 ### Template loading
