@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   else a string. The value is parsed by the awk engine: quotes are removed,
   nothing is expanded or executed, and it does not need bash 4.
 - `-i, --int NAME=INT` defines an integer variable.
+- `JINJA_LIB` points `jinja.sh` to its `lib/` directory, for shells that
+  cannot locate a sourced file (all but bash and zsh).
 - GitHub Actions CI: lint, Linux (gawk, mawk, busybox awk, BWK awk and the
   single-file build), macOS (BWK awk) and Alpine (busybox awk).
 - BWK awk ("one true awk", macOS/BSD default) is tested; its `-0.0` and
@@ -21,6 +23,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `jinja.sh` and `bin/jinja` are POSIX sh instead of bash 4.3: they run in
+  bash 3.2 or newer, dash, busybox sh, ksh93, mksh, posh and zsh. Every
+  `_jinja_*` name is reserved, and `REPLY` is no longer modified.
+- `-v NAME` exports strings in every shell. Integers, indexed arrays,
+  associative arrays and namerefs are handled by the new `lib/bash.sh`,
+  loaded in bash only; indexed arrays now work with bash 3.2.
+- Exporting large bash arrays is faster (values are escaped all at once),
+  and large multi-line values are escaped in linear time in other shells.
+- `-v NAME` with an invalid identifier reports `invalid variable name`.
+- `dist/jinja.sh` is POSIX sh too: it feeds the embedded awk engine through
+  a heredoc on `/dev/fd/3`, or a temporary file where `/dev/fd` is missing,
+  and embeds `lib/bash.sh`.
+- `tests/cli.sh` is POSIX sh and takes `-s SHELL`; the bash-only checks
+  moved to `tests/cli_bash.sh`. `make test` and the CI run it under every
+  shell listed above.
 - `tests/run.sh` skips a case on an awk that lacks a feature listed in the
   case's `requires` file (`negzero`, `denormal`), and reports skipped cases.
 - `tests/run.sh` and `tests/cli.sh` test the library named by `JINJA_SH`

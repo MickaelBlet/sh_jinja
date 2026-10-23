@@ -1,12 +1,12 @@
 # bash_jinja
 
-Render [Jinja2](https://jinja.palletsprojects.com/) templates from bash, with
-the **same syntax and the same output** as Python Jinja2 (3.x) — without
-Python. Only **bash ≥ 4.3** and a **POSIX awk** are needed (tested with gawk,
-mawk, busybox awk and BWK awk, the macOS/BSD one).
+Render [Jinja2](https://jinja.palletsprojects.com/) templates from the shell,
+with the **same syntax and the same output** as Python Jinja2 (3.x) — without
+Python. Only a **POSIX shell** and a **POSIX awk** are needed (tested with
+bash 3.2+, dash, busybox sh, ksh93, mksh, posh and zsh; gawk, mawk, busybox awk and BWK awk, the macOS/BSD one).
 
 ```bash
-source jinja.sh
+. jinja.sh
 name=World
 jinja_render_string -v name 'Hello {{ name }}!'     # Hello World!
 jinja_render -d config.yaml -o nginx.conf templates/nginx.conf.j2
@@ -20,8 +20,12 @@ Either use the repository as is (`jinja.sh` loads the engine from
 `lib/awk/`), or build a single self-contained file:
 
 ```bash
-tools/build.sh            # -> dist/jinja.sh (bash + embedded awk engine)
+tools/build.sh            # -> dist/jinja.sh (POSIX sh + embedded awk engine)
 ```
+
+bash and zsh find `lib/` next to a sourced `jinja.sh`. Other shells cannot:
+set `JINJA_LIB=/path/to/bash_jinja/lib` before sourcing, or use
+`dist/jinja.sh`.
 
 ## Usage
 
@@ -53,7 +57,7 @@ echo '{{ 6 * 7 }}' | bin/jinja -
 | Option | Description |
 | --- | --- |
 | `-d, --data FILE` | load variables from a `.json`, `.yaml` or `.yml` file |
-| `-v, --var NAME` | export a bash variable; `NAME` may be a glob (`'app_*'`) |
+| `-v, --var NAME` | export a shell variable (in bash also integers and arrays); `NAME` may be a glob (`'app_*'`) |
 | `-v, --var NAME=VALUE` | define `NAME` without declaring it: `'(a b)'` list, `'([k]=v)'` dict, else string |
 | `-i, --int NAME=INT` | define an integer variable |
 | `-D, --define KEY=VALUE` | define a string variable |
@@ -74,15 +78,17 @@ variables (`-e`) have the lowest priority.
 `JINJA_AWK` selects the awk implementation (default: `gawk` when installed,
 else `awk`), e.g. `JINJA_AWK=mawk` or `JINJA_AWK="busybox awk"`.
 
-### Bash variables
+### Shell variables
 
-| bash | template value |
+Every shell exports strings. bash also keeps integers and arrays:
+
+| shell | template value |
 | --- | --- |
 | `x=hello` | `'hello'` (str) |
-| `declare -i n=3` | `3` (int) |
-| `arr=(a b)` | `['a', 'b']` (list) |
-| `declare -A m=([k]=v)` | `{'k': 'v'}` (dict, keys sorted) |
-| `declare -n r=x` | value of `x` |
+| `declare -i n=3` (bash) | `3` (int) |
+| `arr=(a b)` (bash) | `['a', 'b']` (list) |
+| `declare -A m=([k]=v)` (bash 4+) | `{'k': 'v'}` (dict, keys sorted) |
+| `declare -n r=x` (bash 4.3+) | value of `x` |
 
 ```bash
 declare -A user=([name]=alice [role]=admin)
@@ -172,7 +178,7 @@ indicators), comments, anchors/aliases, merge keys, YAML 1.1 typing
 
 ```bash
 tests/run.sh                 # golden tests x every available awk
-tests/cli.sh [-a AWK]        # bash side: variables, options, CLI
+tests/cli.sh [-s SHELL] [-a AWK]  # shell side: variables, options, CLI
 tests/gen_expected.py [CASE] # regenerate golden files with Python Jinja2
 tests/fuzz.py expr|ws [SEED] [COUNT]  # differential fuzzing vs Python Jinja2
 tools/lint_awk.sh            # detect constructs that break mawk/busybox

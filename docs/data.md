@@ -10,16 +10,22 @@ jinja_render -e -d defaults.yaml -d prod.yaml -D env=prod page.j2
 # env vars < defaults.yaml < prod.yaml < env=prod
 ```
 
-## Bash variables: `-v NAME`
+## Shell variables: `-v NAME`
 
-| bash | template value |
+In every shell, `-v NAME` exports the value as a string. In bash
+(`lib/bash.sh`), integers and arrays keep their type:
+
+| shell | template value |
 | --- | --- |
 | `x=hello` | `'hello'` (str) |
-| `declare -i n=3` | `3` (int) |
-| `arr=(a "b c")` | `['a', 'b c']` (list) |
-| `declare -A m=([k]=v)` | `{'k': 'v'}` (dict, keys sorted) |
-| `declare -n ref=x` | the value of `x`, exported as `ref` |
 | `x=` | `''` |
+| `declare -i n=3` (bash) | `3` (int) |
+| `arr=(a "b c")` (bash) | `['a', 'b c']` (list) |
+| `declare -A m=([k]=v)` (bash 4+) | `{'k': 'v'}` (dict, keys sorted) |
+| `declare -n ref=x` (bash 4.3+) | the value of `x`, exported as `ref` |
+
+Other shells can pass lists and dicts with `-v 'NAME=(...)'` (below), `-J`
+or a data file.
 
 ```bash
 server_name=example.com
@@ -52,7 +58,8 @@ Notes:
 - Sparse indexed arrays are compacted: `a[0]=x a[5]=y` gives `['x', 'y']`.
 - A glob exports every matching variable: `-v 'app_*'` exports `app_name`,
   `app_port`, ...
-- `-v` fails (return code 2) if the variable is not set.
+- `-v` fails (return code 2) if the variable is not set or `NAME` is not a
+  valid identifier.
 - Local variables of the calling function can be exported:
 
   ```bash
@@ -92,7 +99,7 @@ Notes:
   and `` `cmd` `` stay literal text, so untrusted input is safe.
 - Dict elements must be `[KEY]=VALUE` (the key may be quoted and contain
   spaces); a repeated key keeps its last value.
-- `NAME` must be a valid bash identifier.
+- `NAME` must be a valid shell identifier.
 - `-i` accepts a decimal integer (`-12`, `007` is `7`).
 
 ## Strings: `-D KEY=VALUE`
@@ -177,5 +184,5 @@ Every environment variable becomes a string variable:
 jinja_render_string -e '{{ HOME }} {{ USER|default("nobody") }}'
 ```
 
-Exported bash variables are part of the environment. Non-exported ones need
+Exported shell variables are part of the environment. Non-exported ones need
 `-v`.

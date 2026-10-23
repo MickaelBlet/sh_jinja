@@ -15,18 +15,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update && sudo apt-get install -y gawk mawk busybox original-awk
+      - run: sudo apt-get update && sudo apt-get install -y gawk mawk busybox original-awk dash zsh ksh mksh posh
       - name: golden tests
         run: tests/run.sh -a gawk -a mawk -a 'busybox awk' -a original-awk
-      - name: cli tests
-        run: for a in gawk mawk 'busybox awk' original-awk; do tests/cli.sh -a "$a" || exit 1; done
+      - name: cli tests (awks)
+        run: for a in gawk mawk 'busybox awk' original-awk; do tests/cli.sh -s bash -a "$a" || exit 1; done
+      - name: cli tests (shells)
+        run: for s in dash zsh ksh mksh posh 'busybox sh'; do tests/cli.sh -s "$s" -a mawk || exit 1; done
       - name: single file build
         run: |
           tools/build.sh
-          JINJA_SH=$PWD/dist/jinja.sh tests/run.sh -a mawk
-          JINJA_SH=$PWD/dist/jinja.sh tests/cli.sh -a mawk
+          export JINJA_SH=$PWD/dist/jinja.sh
+          tests/run.sh -a mawk
+          for s in bash dash zsh ksh mksh posh 'busybox sh'; do tests/cli.sh -s "$s" -a mawk || exit 1; done
 
-  # macOS awk is BWK awk ("one true awk"); system bash is 3.2, too old
+  # macOS awk is BWK awk ("one true awk"); system bash is 3.2, tests/run.sh
+  # needs bash 4
   macos:
     runs-on: macos-latest
     steps:
@@ -35,10 +39,10 @@ jobs:
       - run: bash --version | head -1 && /usr/bin/awk --version
       - name: golden tests
         run: tests/run.sh -a /usr/bin/awk
-      - name: cli tests
-        run: tests/cli.sh -a /usr/bin/awk
+      - name: cli tests (system shells, bash 3.2)
+        run: for s in /bin/bash /bin/sh /bin/zsh /bin/dash /bin/ksh; do [ ! -x "$s" ] || tests/cli.sh -s "$s" -a /usr/bin/awk || exit 1; done
 
-  # musl + busybox awk as the only awk
+  # musl, busybox sh and awk (bash only for tests/run.sh)
   alpine:
     runs-on: ubuntu-latest
     container: alpine:latest
@@ -48,4 +52,6 @@ jobs:
       - name: golden tests
         run: tests/run.sh -a 'busybox awk'
       - name: cli tests
-        run: tests/cli.sh -a 'busybox awk'
+        run: |
+          tests/cli.sh -s bash -a 'busybox awk'
+          tests/cli.sh -s sh -a 'busybox awk'

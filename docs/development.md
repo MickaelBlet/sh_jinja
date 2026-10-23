@@ -3,8 +3,9 @@
 ## Layout
 
 ```text
-jinja.sh               bash library and CLI entry point (options, context)
+jinja.sh               POSIX sh library and CLI entry point (options, context)
 bin/jinja              command line wrapper
+lib/bash.sh            bash additions: -v exports integers, arrays, namerefs
 lib/awk/
   value.awk            value heap, Python str()/repr(), comparisons, math
   utf8.awk             code point aware string helpers, case mapping
@@ -50,6 +51,23 @@ tests/                 golden tests, CLI tests, fuzzer
    that join their chunks pairwise, so large outputs stay linear.
 5. Output is printed only at the end. On error, a message goes to stderr
    and awk exits with status 1.
+
+## Portability rules for the shell code
+
+`jinja.sh` and `bin/jinja` are POSIX sh, checked by `shellcheck` and run by
+`tests/cli.sh` under every shell of the CI:
+
+- No `local` (ksh93 has none): use `_jinja_*` globals. Every `_jinja_*`
+  name is reserved.
+- No arrays, `[[ ]]`, `(( ))`, `$'...'`, `${v//}`, `<<<` or `<(...)`.
+  bash-only code goes to `lib/bash.sh`, which must run on bash 3.2 (no
+  namerefs, no `declare -A`).
+- Public functions start with `emulate -L sh` in zsh, so word splitting and
+  patterns behave like sh.
+- Pass `${1+"$@"}`, not `"$@"`, from the public entry points: posh fails on
+  an empty `"$@"` under `set -u`.
+- Code that only parses in bash or zsh (`${BASH_SOURCE[0]}`) goes through
+  `eval`.
 
 ## Portability rules for the awk code
 
@@ -104,8 +122,10 @@ Never edit `expected` by hand. It must come from Python Jinja2.
 
 ### CLI tests
 
-`tests/cli.sh [-a AWK]` checks the bash side: variable export, options,
-return codes and the CLI.
+`tests/cli.sh [-s SHELL] [-a AWK]` checks the shell side under `SHELL`
+(default `sh`): variable export, options, return codes, the caller's state
+and the CLI. In bash it also runs `tests/cli_bash.sh` (integers, arrays,
+namerefs). `make test` runs it under every installed shell of `SHELLS`.
 
 Both scripts test `jinja.sh` from the repository; set `JINJA_SH` to test
 another copy, such as `JINJA_SH=$PWD/dist/jinja.sh`.
@@ -114,12 +134,12 @@ another copy, such as `JINJA_SH=$PWD/dist/jinja.sh`.
 
 `.github/workflows/ci.yml` runs on every push and pull request:
 
-| Job | Platform | awk |
-| --- | --- | --- |
-| `lint` | Ubuntu | `make lint` |
-| `linux` | Ubuntu | gawk, mawk, busybox awk, `original-awk` (BWK), plus `dist/jinja.sh` |
-| `macos` | macOS, Homebrew bash | `/usr/bin/awk` (BWK) |
-| `alpine` | Alpine (musl) | busybox awk |
+| Job | Platform | Shells | awk |
+| --- | --- | --- | --- |
+| `lint` | Ubuntu | `make lint` | |
+| `linux` | Ubuntu | bash, dash, zsh, ksh93, mksh, posh, busybox sh; repository and `dist/jinja.sh` | gawk, mawk, busybox awk, `original-awk` (BWK) |
+| `macos` | macOS | `/bin/bash` (3.2), `/bin/sh`, `/bin/zsh`, `/bin/dash`, `/bin/ksh`; Homebrew bash for `tests/run.sh` | `/usr/bin/awk` (BWK) |
+| `alpine` | Alpine (musl) | busybox sh, bash | busybox awk |
 
 ### Fuzzing
 

@@ -3,7 +3,7 @@
 ## Library
 
 ```bash
-source jinja.sh
+. jinja.sh
 
 jinja_render        [options] TEMPLATE   # render a template file
 jinja_render_string [options] SOURCE     # render a template given as a string
@@ -55,7 +55,7 @@ echo '{{ range(3)|list }}' | bin/jinja -
 | Option | Description |
 | --- | --- |
 | `-d, --data FILE` | load variables from a `.json`, `.yaml` or `.yml` file |
-| `-v, --var NAME` | export a bash variable; `NAME` may be a glob pattern such as `'app_*'` |
+| `-v, --var NAME` | export a shell variable (in bash also integers and arrays); `NAME` may be a glob pattern such as `'app_*'` |
 | `-v, --var NAME=VALUE` | define `NAME` without declaring it: `'(a b)'` list, `'([k]=v)'` dict, else string |
 | `-i, --int NAME=INT` | define an integer variable |
 | `-D, --define KEY=VALUE` | define a string variable |
