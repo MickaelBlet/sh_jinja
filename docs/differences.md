@@ -1,6 +1,6 @@
 # Differences from Python Jinja2
 
-bash_jinja is tested against Jinja2 3.0 with golden files and differential
+sh_jinja is tested against Jinja2 3.0 with golden files and differential
 fuzzing. Its output is meant to be identical to Jinja2's. The known
 differences are listed below.
 
@@ -35,7 +35,7 @@ differences are listed below.
 
 Jinja2 evaluates constant expressions at compile time. In a few autoescape
 corner cases this changes the result, for example
-`{{ '<'|safe ~ '<' }}` with autoescape on. bash_jinja always evaluates at
+`{{ '<'|safe ~ '<' }}` with autoescape on. sh_jinja always evaluates at
 render time, which gives the result Jinja2 gives for non-constant values.
 
 ## Not supported

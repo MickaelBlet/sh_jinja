@@ -26,9 +26,9 @@ mawk, the default `awk` on Debian and Ubuntu, limits recursion depth (see
 ## From the repository
 
 ```bash
-git clone https://github.com/MickaelBlet/bash_jinja.git
-. bash_jinja/jinja.sh           # library
-bash_jinja/bin/jinja --help     # command line
+git clone https://github.com/MickaelBlet/sh_jinja.git
+. sh_jinja/jinja.sh           # library
+sh_jinja/bin/jinja --help     # command line
 ```
 
 `jinja.sh` loads the awk engine from `lib/awk/`, next to itself, and the bash
@@ -37,8 +37,8 @@ source `jinja.sh`; other shells cannot know the path of a sourced file, so
 set `JINJA_LIB` first (or use the single file below):
 
 ```sh
-JINJA_LIB=/opt/bash_jinja/lib
-. /opt/bash_jinja/jinja.sh
+JINJA_LIB=/opt/sh_jinja/lib
+. /opt/sh_jinja/jinja.sh
 ```
 
 The library and `bin/jinja` can be called from any directory. `bin/jinja` can also be

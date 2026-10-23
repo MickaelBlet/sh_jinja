@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The project is renamed from bash_jinja to sh_jinja.
 - `jinja.sh` and `bin/jinja` are POSIX sh instead of bash 4.3: they run in
   bash 3.2 or newer, dash, busybox sh, ksh93, mksh, posh and zsh. Every
   `_jinja_*` name is reserved, and `REPLY` is no longer modified.
@@ -81,5 +82,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   expressions, statements, filters, tests, globals and methods,
   differences from Python Jinja2, development guide.
 
-[Unreleased]: https://github.com/MickaelBlet/bash_jinja/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/MickaelBlet/bash_jinja/releases/tag/v0.1.0
+[Unreleased]: https://github.com/MickaelBlet/sh_jinja/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/MickaelBlet/sh_jinja/releases/tag/v0.1.0

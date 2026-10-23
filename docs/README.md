@@ -1,6 +1,6 @@
-# bash_jinja documentation
+# sh_jinja documentation
 
-bash_jinja renders [Jinja2](https://jinja.palletsprojects.com/) templates
+sh_jinja renders [Jinja2](https://jinja.palletsprojects.com/) templates
 with a POSIX shell and awk only. Templates use the same syntax as Jinja2 3.x and give
 the same output as the Python implementation.
 
@@ -33,4 +33,4 @@ jinja_render_string -v name 'Hello {{ name }}!'   # Hello World!
 - [Development](development.md): architecture, tests, contributing
 
 All template examples in this documentation are checked: their output is
-identical with Python Jinja2 and with bash_jinja.
+identical with Python Jinja2 and with sh_jinja.

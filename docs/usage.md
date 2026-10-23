@@ -79,7 +79,7 @@ jinja_render_string -- '-{{ 1 }}'
 
 These options match the Python `jinja2.Environment` settings:
 
-| bash_jinja | Python |
+| sh_jinja | Python |
 | --- | --- |
 | `--trim-blocks` | `trim_blocks=True` |
 | `--lstrip-blocks` | `lstrip_blocks=True` |

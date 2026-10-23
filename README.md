@@ -1,4 +1,4 @@
-# bash_jinja
+# sh_jinja
 
 Render [Jinja2](https://jinja.palletsprojects.com/) templates from the shell,
 with the **same syntax and the same output** as Python Jinja2 (3.x) — without
@@ -24,7 +24,7 @@ tools/build.sh            # -> dist/jinja.sh (POSIX sh + embedded awk engine)
 ```
 
 bash and zsh find `lib/` next to a sourced `jinja.sh`. Other shells cannot:
-set `JINJA_LIB=/path/to/bash_jinja/lib` before sourcing, or use
+set `JINJA_LIB=/path/to/sh_jinja/lib` before sourcing, or use
 `dist/jinja.sh`.
 
 ## Usage
