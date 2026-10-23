@@ -3,10 +3,11 @@
 #
 # Usage: tests/run.sh [-a AWK]... [CASE...]
 #   -a AWK   awk command to test (repeatable, default: gawk mawk "busybox awk")
+# Environment: JINJA_SH selects the library to test (e.g. dist/jinja.sh)
 set -u
 here=$(cd "${BASH_SOURCE[0]%/*}" && pwd)
-# shellcheck disable=SC1091
-source "$here/../jinja.sh"
+# shellcheck disable=SC1090,SC1091
+source "${JINJA_SH:-$here/../jinja.sh}"
 
 awks=()
 while getopts a: opt; do
@@ -23,6 +24,16 @@ if ((${#awks[@]} == 0)); then
 	done
 fi
 
+# optional awk features a case may require (tests/cases/*/requires)
+declare -A feat=()
+for a in "${awks[@]}"; do
+	read -ra cmd <<<"$a"
+	# BWK awk normalizes -0 to 0
+	[[ $("${cmd[@]}" 'BEGIN { x = 0; printf "%.1f", -x }' </dev/null) == -0.0 ]] && feat[$a,negzero]=1
+	# BWK awk converts subnormal numbers to 0
+	[[ $("${cmd[@]}" 'BEGIN { printf "%s", ("5e-324" + 0 > 0) }' </dev/null) == 1 ]] && feat[$a,denormal]=1
+done
+
 cases=("$@")
 if ((${#cases[@]} == 0)); then
 	for d in "$here"/cases/*/; do
@@ -34,7 +45,7 @@ fi
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
-pass=0 fail=0
+pass=0 fail=0 skip=0
 for c in "${cases[@]}"; do
 	d=$here/cases/$c
 	args=()
@@ -54,7 +65,12 @@ for c in "${cases[@]}"; do
 			esac
 		done <"$d/opts"
 	fi
+	reqs=()
+	[[ -f $d/requires ]] && read -ra reqs <"$d/requires"
 	for a in "${awks[@]}"; do
+		for r in ${reqs[@]+"${reqs[@]}"}; do
+			[[ -n ${feat[$a,$r]:-} ]] || { skip=$((skip + 1)); continue 2; }
+		done
 		JINJA_AWK=$a jinja_render "${args[@]}" "$d/template.j2" >"$tmp/out" 2>"$tmp/err"
 		rc=$?
 		if [[ -f $d/expected_error ]]; then
@@ -72,9 +88,9 @@ for c in "${cases[@]}"; do
 			fail=$((fail + 1))
 			printf 'FAIL %s [%s] rc=%d\n' "$c" "$a" "$rc"
 			sed 's/^/    /' "$tmp/err" | head -5
-			diff <(cat -A "$d/expected" 2>/dev/null) <(cat -A "$tmp/out") | head -20 | sed 's/^/    /'
+			diff <(cat -vet "$d/expected" 2>/dev/null) <(cat -vet "$tmp/out") | head -20 | sed 's/^/    /'
 		fi
 	done
 done
-printf '%d passed, %d failed (%s)\n' "$pass" "$fail" "${awks[*]}"
+printf '%d passed, %d failed, %d skipped (%s)\n' "$pass" "$fail" "$skip" "${awks[*]}"
 ((fail == 0))

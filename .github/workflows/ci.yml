@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make lint
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y gawk mawk busybox original-awk
+      - name: golden tests
+        run: tests/run.sh -a gawk -a mawk -a 'busybox awk' -a original-awk
+      - name: cli tests
+        run: for a in gawk mawk 'busybox awk' original-awk; do tests/cli.sh -a "$a" || exit 1; done
+      - name: single file build
+        run: |
+          tools/build.sh
+          JINJA_SH=$PWD/dist/jinja.sh tests/run.sh -a mawk
+          JINJA_SH=$PWD/dist/jinja.sh tests/cli.sh -a mawk
+
+  # macOS awk is BWK awk ("one true awk"); system bash is 3.2, too old
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install bash && echo "$(brew --prefix)/bin" >>"$GITHUB_PATH"
+      - run: bash --version | head -1 && /usr/bin/awk --version
+      - name: golden tests
+        run: tests/run.sh -a /usr/bin/awk
+      - name: cli tests
+        run: tests/cli.sh -a /usr/bin/awk
+
+  # musl + busybox awk as the only awk
+  alpine:
+    runs-on: ubuntu-latest
+    container: alpine:latest
+    steps:
+      - run: apk add --no-cache bash
+      - uses: actions/checkout@v4
+      - name: golden tests
+        run: tests/run.sh -a 'busybox awk'
+      - name: cli tests
+        run: tests/cli.sh -a 'busybox awk'

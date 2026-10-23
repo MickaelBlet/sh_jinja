@@ -89,6 +89,7 @@ make dist        # build dist/jinja.sh
 | `opts` | optional options, one per line: `trim_blocks`, `lstrip_blocks`, `keep_trailing_newline`, `autoescape`, `strict`, `ext=loopcontrols`, `ext=do` |
 | `expected` | output produced by Python Jinja2 |
 | `expected_error` | or: the exception class raised by Python Jinja2 |
+| `requires` | optional awk features, space separated: `negzero` (`-0.0` kept), `denormal` (subnormal numbers kept); the case is skipped on an awk without them |
 
 To add a case, create the directory, then generate its expected result with
 the reference implementation (this needs `python3`, `jinja2` and `pyyaml`):
@@ -105,6 +106,20 @@ Never edit `expected` by hand. It must come from Python Jinja2.
 
 `tests/cli.sh [-a AWK]` checks the bash side: variable export, options,
 return codes and the CLI.
+
+Both scripts test `jinja.sh` from the repository; set `JINJA_SH` to test
+another copy, such as `JINJA_SH=$PWD/dist/jinja.sh`.
+
+### CI
+
+`.github/workflows/ci.yml` runs on every push and pull request:
+
+| Job | Platform | awk |
+| --- | --- | --- |
+| `lint` | Ubuntu | `make lint` |
+| `linux` | Ubuntu | gawk, mawk, busybox awk, `original-awk` (BWK), plus `dist/jinja.sh` |
+| `macos` | macOS, Homebrew bash | `/usr/bin/awk` (BWK) |
+| `alpine` | Alpine (musl) | busybox awk |
 
 ### Fuzzing
 

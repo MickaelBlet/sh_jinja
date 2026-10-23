@@ -3,7 +3,7 @@
 Render [Jinja2](https://jinja.palletsprojects.com/) templates from bash, with
 the **same syntax and the same output** as Python Jinja2 (3.x) — without
 Python. Only **bash ≥ 4.3** and a **POSIX awk** are needed (tested with gawk,
-mawk and busybox awk).
+mawk, busybox awk and BWK awk, the macOS/BSD one).
 
 ```bash
 source jinja.sh
@@ -156,6 +156,8 @@ indicators), comments, anchors/aliases, merge keys, YAML 1.1 typing
   levels of recursive macros / `loop()` calls and about 15 levels of nested
   parentheses ("program limit exceeded: eval stack size"). gawk and busybox
   awk have no such limit.
+- BWK awk (macOS, BSD) prints `-0.0` as `0.0` and reads subnormal
+  numbers such as `5e-324` as `0`.
 - Without math support in awk (some busybox builds), `**` with a
   fractional exponent is computed in software and may differ in the last
   digit.

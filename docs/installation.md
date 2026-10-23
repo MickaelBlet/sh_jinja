@@ -3,7 +3,8 @@
 ## Requirements
 
 - **bash 4.3** or newer (namerefs and associative arrays are used)
-- a **POSIX awk**: gawk, mawk and busybox awk are tested
+- a **POSIX awk**: gawk, mawk, busybox awk and BWK awk (macOS, BSD) are
+  tested
 
 No other command is needed at render time.
 

@@ -14,9 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   else a string. The value is parsed by the awk engine: quotes are removed,
   nothing is expanded or executed, and it does not need bash 4.
 - `-i, --int NAME=INT` defines an integer variable.
+- GitHub Actions CI: lint, Linux (gawk, mawk, busybox awk, BWK awk and the
+  single-file build), macOS (BWK awk) and Alpine (busybox awk).
+- BWK awk ("one true awk", macOS/BSD default) is tested; its `-0.0` and
+  subnormal number limits are documented.
 
 ### Changed
 
+- `tests/run.sh` skips a case on an awk that lacks a feature listed in the
+  case's `requires` file (`negzero`, `denormal`), and reports skipped cases.
+- `tests/run.sh` and `tests/cli.sh` test the library named by `JINJA_SH`
+  when it is set.
+- The `5e-324` check moved from the `float_edge` case to `float_denormal`.
 - The awk engine reads its input with a plain `getline` instead of
   `/dev/stdin`.
 

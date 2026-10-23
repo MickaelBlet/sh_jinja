@@ -3,11 +3,12 @@
 # Tests for the bash side: variable export, options, CLI.
 #
 # Usage: tests/cli.sh [-a AWK]
+# Environment: JINJA_SH selects the library to test (e.g. dist/jinja.sh)
 set -u
 here=$(cd "${BASH_SOURCE[0]%/*}" && pwd)
 root=${here%/*}
-# shellcheck disable=SC1091
-source "$root/jinja.sh"
+# shellcheck disable=SC1090,SC1091
+source "${JINJA_SH:-$root/jinja.sh}"
 
 while getopts a: opt; do
 	case $opt in

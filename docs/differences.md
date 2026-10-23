@@ -49,14 +49,17 @@ render time, which gives the result Jinja2 gives for non-constant values.
 
 ## awk implementations
 
-| | gawk | mawk | busybox awk |
-| --- | --- | --- | --- |
-| speed | fast | fast | slower (about 3x) |
-| recursion depth | unlimited | about 30 levels of macro or `loop()` recursion, about 15 levels of nested parentheses | unlimited |
-| `**` with fractional exponent | exact | exact | exact when built with math support, otherwise computed in software (last digit may differ) |
+| | gawk | mawk | busybox awk | BWK awk |
+| --- | --- | --- | --- | --- |
+| speed | fast | fast | slower (about 3x) | fast |
+| recursion depth | unlimited | about 30 levels of macro or `loop()` recursion, about 15 levels of nested parentheses | unlimited | unlimited |
+| `**` with fractional exponent | exact | exact | exact when built with math support, otherwise computed in software (last digit may differ) | exact |
+| `-0.0` | kept | kept | kept | printed as `0.0` |
+| subnormal numbers (`5e-324`) | kept | kept | kept | read as `0` |
 
 When mawk runs out of evaluation stack, the error is
 `mawk: program limit exceeded: eval stack size=1024`. Use gawk for deeply
 recursive templates. gawk is chosen by default when it is installed.
 
-Other POSIX awks (BSD awk, the "one true awk" on macOS) are not tested.
+BWK awk is the "one true awk": the default `awk` on macOS and the BSDs,
+`original-awk` on Debian and Ubuntu.
