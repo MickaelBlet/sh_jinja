@@ -20,6 +20,7 @@ lib/awk/
   main.awk             protocol reader, render entry point
 tools/build.sh         single-file build (dist/jinja.sh)
 tools/lint_awk.sh      portability lint
+tools/bench.py         benchmark against Python Jinja2
 tests/                 golden tests, CLI tests, fuzzer
 ```
 
@@ -94,6 +95,7 @@ make test        # golden tests on every available awk + CLI tests
 make lint        # awk portability lint + shellcheck
 make fuzz        # differential fuzzing against Python Jinja2
 make dist        # build dist/jinja.sh
+make bench       # benchmark against Python Jinja2 (docs/performance.md)
 ```
 
 ### Golden tests

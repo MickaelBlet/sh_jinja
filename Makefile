@@ -1,4 +1,4 @@
-.PHONY: test lint dist fuzz
+.PHONY: test lint dist fuzz bench
 
 # shells tried by `make test` when installed
 SHELLS = dash zsh ksh93 mksh posh "busybox sh"
@@ -17,6 +17,9 @@ lint:
 
 dist:
 	tools/build.sh
+
+bench:
+	tools/bench.py
 
 fuzz:
 	tests/fuzz.py expr 1 300

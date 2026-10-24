@@ -30,6 +30,7 @@ jinja_render_string -v name 'Hello {{ name }}!'   # Hello World!
 **Reference**
 
 - [Differences from Python Jinja2](differences.md)
+- [Performance](performance.md): benchmark against Python Jinja2
 - [Development](development.md): architecture, tests, contributing
 
 All template examples in this documentation are checked: their output is
